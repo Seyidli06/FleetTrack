@@ -937,21 +937,7 @@ and scales much better for historical GPS data.
 
 ---
 
-## Current Limitations
 
-FleetTrack is designed as a single-instance backend for the current project scope.
-
-Known areas that would require additional infrastructure in a horizontally scaled production deployment include:
-
-- distributed scheduling coordination
-- JWT revocation and refresh-token lifecycle
-- signing-key rotation
-- distributed job idempotency
-- centralized observability and tracing
-
-These are deliberate future scaling concerns rather than requirements of the current implementation.
-
----
 
 ## Project Status
 
@@ -979,8 +965,3 @@ Integration testing
 Production configuration
 ```
 
----
-
-## License
-
-Private educational / portfolio project.
