@@ -5,7 +5,9 @@ import com.fleettrack.driver.dto.DriverResponse;
 import com.fleettrack.location.dto.VehicleLocationResponse;
 import com.fleettrack.vehicle.dto.VehicleResponse;
 import org.springframework.boot.cache.autoconfigure.RedisCacheManagerBuilderCustomizer;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -17,7 +19,8 @@ import java.time.Duration;
 
 @Configuration(proxyBeanMethods = false)
 @EnableCaching
-public class CacheConfig {
+public class CacheConfig
+        implements CachingConfigurer {
 
     private static final Duration VEHICLE_CACHE_TTL =
             Duration.ofMinutes(10);
@@ -28,6 +31,11 @@ public class CacheConfig {
     private static final Duration LATEST_LOCATION_CACHE_TTL =
             Duration.ofSeconds(30);
 
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return new FailOpenCacheErrorHandler();
+    }
+
     @Bean
     public RedisCacheManagerBuilderCustomizer
     redisCacheManagerBuilderCustomizer(
@@ -35,10 +43,6 @@ public class CacheConfig {
     ) {
         return builder -> builder
 
-                /*
-                 * Cache put/evict əməliyyatlarını
-                 * transaction ilə uyğunlaşdırır.
-                 */
                 .transactionAware()
 
                 .withCacheConfiguration(
@@ -83,14 +87,18 @@ public class CacheConfig {
         return RedisCacheConfiguration
                 .defaultCacheConfig()
 
-                .entryTtl(ttl)
+                .entryTtl(
+                        ttl
+                )
 
                 .disableCachingNullValues()
 
                 .serializeValuesWith(
                         RedisSerializationContext
                                 .SerializationPair
-                                .fromSerializer(serializer)
+                                .fromSerializer(
+                                        serializer
+                                )
                 );
     }
 }

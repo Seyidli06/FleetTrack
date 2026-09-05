@@ -35,6 +35,19 @@ management:
     health:
       show-details: always
 
+      probes:
+        enabled: true
+
+      group:
+        liveness:
+          include:
+            - livenessState
+
+        readiness:
+          include:
+            - readinessState
+            - db
+
 server:
   port: 8081
 

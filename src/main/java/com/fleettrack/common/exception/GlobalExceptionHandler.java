@@ -20,6 +20,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -36,6 +37,26 @@ public class GlobalExceptionHandler {
     ) {
         this.problemFactory =
                 problemFactory;
+    }
+
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ProblemDetail> handleNoResourceFound(
+            NoResourceFoundException exception,
+            HttpServletRequest request
+    ) {
+        ProblemDetail problem =
+                problemFactory.create(
+                        HttpStatus.NOT_FOUND,
+                        "Resource not found",
+                        "The requested resource was not found.",
+                        ApiErrorCode.RESOURCE_NOT_FOUND,
+                        request
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problem);
     }
 
     @ExceptionHandler(

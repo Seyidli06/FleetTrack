@@ -1,11 +1,11 @@
 package com.fleettrack.notification.subscriber;
 
-import com.fleettrack.notification.dto.NotificationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
@@ -39,48 +39,70 @@ public class RedisNotificationSubscriber
                         StandardCharsets.UTF_8
                 );
 
-        try {
+        handleMessage(
+                payload
+        );
+    }
 
-            NotificationEvent event =
-                    objectMapper.readValue(
-                            payload,
-                            NotificationEvent.class
+    public void handleMessage(
+            String payload
+    ) {
+        try {
+            JsonNode root =
+                    objectMapper.readTree(
+                            payload
                     );
 
-            /*
-             * Phase 14-də subscriber real notification
-             * processing nöqtəsidir.
-             *
-             * Gələcəkdə buradan WebSocket, email və ya
-             * başqa notification adapter-i çağırıla bilər.
-             */
+            String eventId =
+                    textValue(
+                            root,
+                            "eventId"
+                    );
+
+            String type =
+                    textValue(
+                            root,
+                            "type"
+                    );
+
+            String vehicleId =
+                    textValue(
+                            root,
+                            "vehicleId"
+                    );
+
             log.info(
-                    """
-                    Redis notification received:
-                    eventId={}
-                    type={}
-                    vehicleId={}
-                    referenceId={}
-                    title={}
-                    message={}
-                    occurredAt={}
-                    """,
-                    event.eventId(),
-                    event.type(),
-                    event.vehicleId(),
-                    event.referenceId(),
-                    event.title(),
-                    event.message(),
-                    event.occurredAt()
+                    "Redis notification received, eventId={}, type={}, vehicleId={}",
+                    eventId,
+                    type,
+                    vehicleId
             );
 
-        } catch (Exception exception) {
-
+        } catch (
+                Exception exception
+        ) {
             log.error(
-                    "Failed to deserialize Redis notification payload={}",
-                    payload,
+                    "Failed to deserialize Redis notification payload",
                     exception
             );
         }
+    }
+
+    private String textValue(
+            JsonNode root,
+            String fieldName
+    ) {
+        JsonNode value =
+                root.get(
+                        fieldName
+                );
+
+        if (value == null
+                || value.isNull()) {
+
+            return null;
+        }
+
+        return value.asText();
     }
 }
