@@ -1,0 +1,105 @@
+spring:
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/fleettrack}
+    username: ${DB_USERNAME:fleettrack}
+    password: ${DB_PASSWORD}
+
+    hikari:
+      pool-name: FleetTrackHikariPool
+
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:5000}
+      validation-timeout: ${DB_VALIDATION_TIMEOUT:2000}
+
+      idle-timeout: ${DB_IDLE_TIMEOUT:600000}
+      max-lifetime: ${DB_MAX_LIFETIME:1500000}
+      keepalive-time: ${DB_KEEPALIVE_TIME:120000}
+
+  jpa:
+    open-in-view: false
+
+    hibernate:
+      ddl-auto: validate
+
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+
+        order_inserts: true
+        order_updates: true
+
+  flyway:
+    enabled: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+
+      connect-timeout: ${REDIS_CONNECT_TIMEOUT:2s}
+      timeout: ${REDIS_COMMAND_TIMEOUT:2s}
+
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
+server:
+  port: ${SERVER_PORT:8081}
+
+  shutdown: graceful
+
+
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:NONE}
+
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+
+  tomcat:
+    connection-timeout: 5s
+
+    threads:
+      max: ${TOMCAT_MAX_THREADS:100}
+      min-spare: ${TOMCAT_MIN_SPARE_THREADS:10}
+
+    accept-count: ${TOMCAT_ACCEPT_COUNT:100}
+
+
+
+management:
+
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+
+app:
+
+  bootstrap-admin:
+    enabled: false
+
+  maintenance-reminder:
+    enabled: ${MAINTENANCE_REMINDER_ENABLED:true}
+
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+
+springdoc:
+
+  api-docs:
+    enabled: ${SPRINGDOC_API_DOCS_ENABLED:false}
+
+  swagger-ui:
+    enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:false}

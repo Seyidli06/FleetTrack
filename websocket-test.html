@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FleetTrack WebSocket Test</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        input {
+            width: 700px;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            margin-right: 8px;
+        }
+
+        pre {
+            background: #111;
+            color: #eee;
+            padding: 20px;
+            min-height: 300px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>FleetTrack WebSocket Test</h2>
+
+<label>JWT:</label>
+<br>
+
+<input
+        id="token"
+        type="text"
+        placeholder="Paste JWT here"
+/>
+
+<br>
+
+<label>Vehicle ID:</label>
+<br>
+
+<input
+        id="vehicleId"
+        type="number"
+        value="1"
+/>
+
+<br>
+
+<button onclick="connect()">
+    Connect
+</button>
+
+<button onclick="disconnect()">
+    Disconnect
+</button>
+
+<h3>Messages</h3>
+
+<pre id="log"></pre>
+
+<script>
+    let client;
+
+    function log(message) {
+        const logElement =
+            document.getElementById("log");
+
+        logElement.textContent +=
+            message + "\n";
+    }
+
+    function connect() {
+
+        const token =
+            document
+                .getElementById("token")
+                .value
+                .trim();
+
+        const vehicleId =
+            document
+                .getElementById("vehicleId")
+                .value;
+
+        if (!token) {
+            log("JWT is required");
+            return;
+        }
+
+        client =
+            new StompJs.Client({
+
+                brokerURL:
+                    "ws://localhost:8081/ws",
+
+                connectHeaders: {
+                    Authorization:
+                        "Bearer " + token
+                },
+
+                reconnectDelay: 0,
+
+                debug: function (message) {
+                    console.log(message);
+                }
+            });
+
+        client.onConnect =
+            function () {
+
+                log("CONNECTED");
+
+                const destination =
+                    "/topic/vehicles/"
+                    + vehicleId
+                    + "/location";
+
+                log(
+                    "SUBSCRIBING: "
+                    + destination
+                );
+
+                client.subscribe(
+                    destination,
+                    function (message) {
+
+                        const body =
+                            JSON.parse(
+                                message.body
+                            );
+
+                        log(
+                            "LOCATION RECEIVED:"
+                        );
+
+                        log(
+                            JSON.stringify(
+                                body,
+                                null,
+                                2
+                            )
+                        );
+                    }
+                );
+            };
+
+        client.onStompError =
+            function (frame) {
+
+                log(
+                    "STOMP ERROR: "
+                    + frame.headers.message
+                );
+
+                log(frame.body);
+            };
+
+        client.onWebSocketError =
+            function (error) {
+
+                log(
+                    "WEBSOCKET ERROR"
+                );
+
+                console.error(error);
+            };
+
+        client.onWebSocketClose =
+            function () {
+
+                log(
+                    "WEBSOCKET CLOSED"
+                );
+            };
+
+        client.activate();
+    }
+
+    function disconnect() {
+
+        if (client) {
+
+            client.deactivate();
+
+            log(
+                "DISCONNECTED"
+            );
+        }
+    }
+</script>
+
+</body>
+</html>

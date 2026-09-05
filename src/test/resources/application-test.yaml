@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+
+app:
+  maintenance-reminder:
+    enabled: false
+
+  bootstrap-admin:
+    enabled: false
+
+  rate-limit:
+    enabled: false

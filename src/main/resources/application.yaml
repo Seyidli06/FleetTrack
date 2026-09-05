@@ -1,0 +1,89 @@
+spring:
+  application:
+    name: fleettrack
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/fleettrack
+    username: fleettrack
+    password: fleettrack
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+
+  cache:
+    type: redis
+
+  data:
+    redis:
+      host: localhost
+      port: 6380
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+
+  endpoint:
+    health:
+      show-details: always
+
+server:
+  port: 8081
+
+app:
+  security:
+    jwt:
+      issuer: fleettrack
+      access-token-ttl: 1h
+      private-key: file:./keys/private.pem
+      public-key: file:./keys/public.pem
+
+  bootstrap-admin:
+    enabled: ${BOOTSTRAP_ADMIN_ENABLED:false}
+    username: ${BOOTSTRAP_ADMIN_USERNAME:}
+    email: ${BOOTSTRAP_ADMIN_EMAIL:}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+
+  maintenance-reminder:
+    enabled: true
+    days-ahead: 7
+    cron: "0 0 8 * * *"
+    zone: "Asia/Baku"
+
+  notification:
+    channel: fleettrack:notifications
+
+  rate-limit:
+    enabled: true
+
+    login:
+      requests: 5
+      window: 1m
+
+    api:
+      requests: 120
+      window: 1m
+
+    reports:
+      requests: 10
+      window: 1m
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    persist-authorization: true

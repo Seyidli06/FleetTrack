@@ -1,0 +1,17 @@
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: fleettrack-postgres
+    environment:
+      POSTGRES_DB: fleettrack
+      POSTGRES_USER: fleettrack
+      POSTGRES_PASSWORD: fleettrack
+    ports:
+      - "5433:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: fleettrack-redis
+    ports:
+      - "6380:6379"

@@ -1,0 +1,30 @@
+package com.fleettrack.common.error;
+
+public enum ApiErrorCode {
+
+    VALIDATION_ERROR,
+
+    MALFORMED_REQUEST,
+
+    BAD_REQUEST,
+
+    UNAUTHORIZED,
+
+    FORBIDDEN,
+
+    RESOURCE_NOT_FOUND,
+
+    DUPLICATE_RESOURCE,
+
+    BUSINESS_RULE_CONFLICT,
+
+    STALE_VERSION,
+
+    DATA_INTEGRITY_CONFLICT,
+
+    RATE_LIMIT_EXCEEDED,
+
+    RATE_LIMIT_UNAVAILABLE,
+
+    INTERNAL_ERROR
+}
